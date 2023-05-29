@@ -17,9 +17,8 @@ use App\Helpers\Gdrian;
 
 Route::get('/', function () {
     $users = \App\Models\User::all();
-
     dd($users);
-    // dd(decrypt($encrypt));
+
     return view('welcome');
 });
 
