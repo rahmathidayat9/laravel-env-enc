@@ -16,19 +16,29 @@ use App\Helpers\Gdrian;
 */
 
 Route::get('/', function () {
-    $users = \App\Models\User::all();
-    dd($users);
-
     return view('welcome');
 });
 
-Route::get('/encrypt', function() {
-    return view('encrypt');
-});
-
 Route::post('/encrypt', function(Request $request) {
-    $input = $request->encrypt;
-    $result = Gdrian::encryptStr($input);
+    $key = $request->key;
+    $value = $request->encrypt;
+
+    $result = Gdrian::encryptStr($value);
+
+    // Read the existing .env file
+    $envPath = base_path('.env');
+    $envFile = file_get_contents($envPath);
+
+    // Replace the existing value or add a new key-value pair
+    $envFile = preg_replace("/^$key=.*$/m", "$key=$result", $envFile, -1, $count);
+
+    // If the key-value pair doesn't exist, add it to the end of the file
+    if ($count === 0) {
+        $envFile .= "\n$key=$result";
+    }
+
+    // Save the updated .env file
+    file_put_contents(base_path('.env'), $envFile);
 
     return response()->json($result);
 })->name('encrypt.store');
